@@ -38,7 +38,7 @@ endif
 let b:did_indent = 1
 
 setlocal indentexpr=GetShIndent()
-setlocal indentkeys+=0=then,0=do,0=else,0=elif,0=fi,0=esac,0=done,0=end,),0=;;,0=;&
+setlocal indentkeys+=0=then,0=do,0=pushd,0=else,0=elif,0=fi,0=esac,0=done,0=end,0=popd,),0=;;,0=;&
 setlocal indentkeys+=0=fin,0=fil,0=fip,0=fir,0=fix
 setlocal indentkeys-=:,0#
 setlocal nosmartindent
@@ -84,8 +84,8 @@ function! GetShIndent()
 
   " Check contents of previous lines
   " should not apply to e.g. commented lines
-  if line =~ '^\s*\%(if\|then\|do\|else\|elif\|case\|while\|until\|for\|select\|foreach\)\>\($\|\s\)' ||
-        \  (&ft is# 'zsh' && line =~ '^\s*\<\%(if\|then\|do\|else\|elif\|case\|while\|until\|for\|select\|foreach\)\>\($\|\s\)')
+  if line =~ '^\s*\%(if\|then\|do\|else\|elif\|case\|while\|until\|for\|select\|foreach\|pushd\)\>\($\|\s\)' ||
+        \  (&ft is# 'zsh' && line =~ '^\s*\<\%(if\|then\|do\|else\|elif\|case\|while\|until\|for\|select\|foreach\|pushd\)\>\($\|\s\)')
     if !s:is_end_expression(line)
       let ind += s:indent_value('default')
     endif
@@ -138,7 +138,7 @@ function! GetShIndent()
     if previous_line > 0
       let ind = indent(previous_line)
     endif
-  elseif line =~ '^\s*\%(then\|do\|else\|elif\|done\|end\)\>' || s:end_block(line)
+  elseif line =~ '^\s*\%(then\|do\|else\|elif\|done\|end\|popd\)\>' || s:end_block(line)
     let ind -= s:indent_value('default')
   elseif line =~ '^\s*esac\>' && s:is_case_empty(getline(v:lnum - 1))
     let ind -= s:indent_value('default')
@@ -292,7 +292,7 @@ function! s:is_comment(line)
 endfunction
 
 function! s:is_end_expression(line)
-  return a:line =~ '\<\%(fi\|esac\|done\|end\)\>\s*\%(#.*\)\=$'
+  return a:line =~ '\<\%(fi\|esac\|done\|end\|popd\)\>\s*\%(#.*\)\=$'
 endfunction
 
 function! s:is_bash()
